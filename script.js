@@ -94,6 +94,12 @@ class Vector2 {
 // shorthand
 const v2 = Vector2;
 
+function clamp(num, min, max) {
+  if (num < min) {return min}
+  if (max < num) {return max}
+  return num;
+}
+
 // ========================================
 // DEFINE
 // ========================================
@@ -118,6 +124,11 @@ const player_args = {
   pos: new Vector2(100, 100),
   attribute: player_attribute
 };
+
+// const
+const RESISTANCE = 0.95;
+const FLICK_POWER = 0.1
+
 // generate player marble instance
 const player = new GameMarble(player_args);
 
@@ -180,13 +191,21 @@ var flick_event = {
   motion: Vector2.zero,
   success: false
 }
+const FLICK_POWER_MIN = 10;
+const FLICK_POWER_MAX = 200;
 
 // logic function
 function logic() {
-  flick();
+  // operate flick charge
+  flick_charge();
+  if (flick_event.success) {
+    player.motion = v2.times(v2.clamp(flick_event.motion.inverse, FLICK_POWER_MIN, FLICK_POWER_MAX), FLICK_POWER);
+    flick_event.success = false;
+  }
+  player_moving();
 }
 
-function flick() {
+function flick_charge() {
   // start flick
   if (mouse_event.down) {
     // start charge
@@ -194,7 +213,7 @@ function flick() {
     flick_event.start_pos = mouse_event.pos;
   }
   // cancel flick
-  if (key_event.includes("c")) {flick_event.charging = false}
+  if (key_event.includes("c")) { flick_event.charging = false }
   // end flick
   if (mouse_event.up && flick_event.charging) {
     // end charge
@@ -202,13 +221,20 @@ function flick() {
     // calc motion
     flick_event.end_pos = mouse_event.pos;
     flick_event.motion = v2.sub(flick_event.end_pos, flick_event.start_pos);
+    // flick success flag
+    if (FLICK_POWER_MIN < flick_event.motion.magnitude) { flick_event.success = true; }
   }
   // reset events
   // mouse
-  if (mouse_event.down) {mouse_event.down = false}
-  if (mouse_event.up) {mouse_event.up = false}
+  if (mouse_event.down) { mouse_event.down = false }
+  if (mouse_event.up) { mouse_event.up = false }
   // key
-  if (key_event.length) {key_event = []}
+  if (key_event.length) { key_event = [] }
+}
+
+function player_moving() {
+  player.pos.add(player.motion);
+  player.motion.times(RESISTANCE);
 }
 
 // ========================================
