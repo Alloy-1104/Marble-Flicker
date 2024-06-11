@@ -95,6 +95,10 @@ class Vector2 {
 // shorthand
 v2 = Vector2;
 
+// ========================================
+// DEFINE
+// ========================================
+
 // setting canvas
 const canvas = document.getElementById("game-canvas");
 const ctx = canvas.getContext("2d");
@@ -127,3 +131,27 @@ const camera_args = {
   smoothness: 5
 };
 const camera = new GameCamera(camera_args);
+
+// ========================================
+// TICK
+// ========================================
+
+// logic function
+function logic() {
+
+}
+
+// rendering
+function render() {
+
+}
+
+// run always running
+function tick() {
+  logic();
+  render();
+}
+
+// tick function
+const FPS = 60;
+setInterval(tick, 1000 / FPS);
