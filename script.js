@@ -95,8 +95,8 @@ class Vector2 {
 const v2 = Vector2;
 
 function clamp(num, min, max) {
-  if (num < min) {return min}
-  if (max < num) {return max}
+  if (num < min) { return min }
+  if (max < num) { return max }
   return num;
 }
 
@@ -235,6 +235,24 @@ function flick_charge() {
 function player_moving() {
   player.pos.add(player.motion);
   player.motion.times(RESISTANCE);
+}
+
+class CollisionDetect {
+  static rect_point(rox, roy, rsx, rsy, px, py) {
+    if (rox <= px && px <= rox + rsx && roy <= py && py <= roy + rsy) { return true; }
+    return false;
+  }
+  static circle_point(cx, cy, cr, px, py) {
+    if ((px - cx) ** 2 + (py - cy) ** 2 <= cr ** 2) { return true; }
+    return false;
+  }
+  static rect_circle(rox, roy, rsx, rsy, cx, cy, cr) {
+    if (CollisionDetect.rect_point(rox, roy, rsx, rsy, cx, cy)) { return true; }
+    let clamp_x = clamp(cx, rox, rox + rsx);
+    let clamp_y = clamp(cy, roy, roy + rsy);
+    if (((clamp_x - cx) ** 2 + (clamp_y - cy) ** 2) < cr ** 2) { return true; }
+    return false;
+  }
 }
 
 // ========================================
