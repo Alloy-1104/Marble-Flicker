@@ -107,11 +107,18 @@ class GameMarble {
   constructor(args) {
     this.pos = args.pos;
     this.motion = Vector2.zero;
+    this.attribute = args.attribute
   }
 }
-const player_args = {
-  pos: Vector2.zero
+const player_attribute = {
+  radius: 20,
+  inside_size: 0.8
 };
+const player_args = {
+  pos: Vector2.zero,
+  attribute: player_attribute
+};
+// generate player marble instance
 const player = new GameMarble(player_args);
 
 // setting camera
@@ -129,6 +136,7 @@ const camera_args = {
   pos: player.pos.clone(),
   smoothness: 5
 };
+// generate camera instance
 const camera = new GameCamera(camera_args);
 
 // setting terrain
@@ -159,7 +167,11 @@ function logic() {
 // rendering
 const COLOR = {
   background: "#eee",
-  stage: "#ddd"
+  stage: "#ddd",
+  player: {
+    inside: "#ccc",
+    outline: "#bbb"
+  }
 }
 
 // temporatory
@@ -175,10 +187,30 @@ function render() {
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
   // wall
+  let _fill_data;
   for (let wall_data of stage_data.wall) {
     ctx.fillStyle = COLOR.stage;
-    ctx.fillRect(...wall_data.rect);
+    // create new array
+    _fill_data = new Array(...wall_data.rect);
+    // set camera offset
+    _fill_data[0] -= camera.pos.x;
+    _fill_data[1] -= camera.pos.y;
+    ctx.fillRect(..._fill_data);
   }
+
+  // player
+  // set camera offset
+  _fill_data = new Array(...player.pos.pack);
+  _fill_data[0] -= camera.pos.x;
+  _fill_data[1] -= camera.pos.y;
+  ctx.fillStyle = COLOR.player.outline;
+  ctx.beginPath();
+  ctx.arc(..._fill_data, player.attribute.radius, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = COLOR.player.inside;
+  ctx.beginPath();
+  ctx.arc(..._fill_data, player.attribute.radius * player.attribute.inside_size, 0, Math.PI * 2);
+  ctx.fill();
 }
 
 // run always running
