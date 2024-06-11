@@ -155,6 +155,7 @@ const terrain = {
 // LOGIC
 // ========================================
 
+// mouse event
 var mouse_event = {
   down: false,
   up: false,
@@ -164,9 +165,50 @@ document.addEventListener("mousedown", e => { mouse_event.down = true; mouse_eve
 document.addEventListener("mouseup", e => { mouse_event.up = true; mouse_event.pos = new Vector2(e.clientX, window.innerHeight - e.clientY); });
 document.addEventListener("mousemove", e => { mouse_event.pos = new Vector2(e.clientX, window.innerHeight - e.clientY); });
 
+// key event
+var key_event = []
+document.addEventListener('keydown', e => {
+  key_event.push(e.key);
+});
+
+// flick event
+// WARN: flick_event.motion = flick_event.end_pos - flick_event.start_pos
+var flick_event = {
+  charging: false,
+  start_pos: Vector2.zero,
+  end_pos: Vector2.zero,
+  motion: Vector2.zero,
+  success: false
+}
+
 // logic function
 function logic() {
-  //
+  flick();
+}
+
+function flick() {
+  // start flick
+  if (mouse_event.down) {
+    // start charge
+    flick_event.charging = true;
+    flick_event.start_pos = mouse_event.pos;
+  }
+  // cancel flick
+  if (key_event.includes("c")) {flick_event.charging = false}
+  // end flick
+  if (mouse_event.up && flick_event.charging) {
+    // end charge
+    flick_event.charging = false;
+    // calc motion
+    flick_event.end_pos = mouse_event.pos;
+    flick_event.motion = v2.sub(flick_event.end_pos, flick_event.start_pos);
+  }
+  // reset events
+  // mouse
+  if (mouse_event.down) {mouse_event.down = false}
+  if (mouse_event.up) {mouse_event.up = false}
+  // key
+  if (key_event.length) {key_event = []}
 }
 
 // ========================================
