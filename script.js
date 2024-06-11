@@ -91,9 +91,8 @@ class Vector2 {
     return new Vector2(0, -1);
   }
 }
-
 // shorthand
-v2 = Vector2;
+const v2 = Vector2;
 
 // ========================================
 // DEFINE
@@ -132,6 +131,18 @@ const camera_args = {
 };
 const camera = new GameCamera(camera_args);
 
+// setting terrain
+const terrain = {
+  dev: {
+    wall: [
+      { rect: [0, 0, 800, 40] },
+      { rect: [0, 0, 40, 600] },
+      { rect: [0, 560, 800, 40] },
+      { rect: [760, 0, 40, 600] }
+    ]
+  }
+}
+
 // ========================================
 // TICK
 // ========================================
@@ -141,9 +152,33 @@ function logic() {
 
 }
 
-// rendering
-function render() {
+// ========================================
+// RENDERING
+// ========================================
 
+// rendering
+const COLOR = {
+  background: "#eee",
+  stage: "#ddd"
+}
+
+// temporatory
+var current_stage = "dev";
+stage_data = terrain[current_stage];
+
+function render() {
+  // init
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // background
+  ctx.fillStyle = COLOR.background;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // wall
+  for (let wall_data of stage_data.wall) {
+    ctx.fillStyle = COLOR.stage;
+    ctx.fillRect(...wall_data.rect);
+  }
 }
 
 // run always running
