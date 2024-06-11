@@ -115,7 +115,7 @@ const player_attribute = {
   inside_size: 0.8
 };
 const player_args = {
-  pos: Vector2.zero,
+  pos: new Vector2(100, 100),
   attribute: player_attribute
 };
 // generate player marble instance
@@ -133,7 +133,7 @@ class GameCamera {
   }
 }
 const camera_args = {
-  pos: player.pos.clone(),
+  pos: Vector2.zero,
   smoothness: 5
 };
 // generate camera instance
@@ -152,12 +152,21 @@ const terrain = {
 }
 
 // ========================================
-// TICK
+// LOGIC
 // ========================================
+
+var mouse_event = {
+  down: false,
+  up: false,
+  pos: Vector2.zero
+}
+document.addEventListener("mousedown", e => { mouse_event.down = true; mouse_event.pos = new Vector2(e.clientX, window.innerHeight - e.clientY); });
+document.addEventListener("mouseup", e => { mouse_event.up = true; mouse_event.pos = new Vector2(e.clientX, window.innerHeight - e.clientY); });
+document.addEventListener("mousemove", e => { mouse_event.pos = new Vector2(e.clientX, window.innerHeight - e.clientY); });
 
 // logic function
 function logic() {
-
+  //
 }
 
 // ========================================
@@ -212,6 +221,10 @@ function render() {
   ctx.arc(..._fill_data, player.attribute.radius * player.attribute.inside_size, 0, Math.PI * 2);
   ctx.fill();
 }
+
+// ========================================
+// TICK
+// ========================================
 
 // run always running
 function tick() {
