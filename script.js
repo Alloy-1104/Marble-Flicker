@@ -233,8 +233,37 @@ function flick_charge() {
 }
 
 function player_moving() {
-  player.pos.add(player.motion);
+  // collision detect
+  if (is_colliding_wall(...v2.add(player.pos, player.motion).pack)) {
+    // collided
+    // vary the number of executions depending on the speed
+    let length = Math.floor(Math.abs(player.motion.magnitude)) + 1;
+    console.log(length);
+    for( let i = 1; i <= length; i++) {
+      // x
+      if (is_colliding_wall(player.pos.x + (player.motion.x / length) * i, player.pos.y)) {
+        player.motion.x = 0 - player.motion.x;
+        player.pos.x = player.pos.x + (player.motion.x / length) * (i - 1);
+        return;
+      }
+      // y
+      if (is_colliding_wall(player.pos.x, player.pos.y + (player.motion.y / length) * i)) {
+        player.motion.y = 0 - player.motion.y;
+        player.pos.y = player.pos.y + (player.motion.y / length) * (i - 1);
+      }
+    }
+  } else {
+    // ok
+    player.pos.add(player.motion);
+  }
   player.motion.times(RESISTANCE);
+}
+
+function is_colliding_wall(px, py, pr=player.attribute.radius) {
+  for (let wall_data of stage_data.wall) {
+    if (CollisionDetect.rect_circle(...wall_data.rect, px, py, pr)) { return true; }
+  }
+  return false;
 }
 
 class CollisionDetect {
@@ -271,7 +300,7 @@ const COLOR = {
 
 // temporatory
 var current_stage = "dev";
-stage_data = terrain[current_stage];
+var stage_data = terrain[current_stage];
 
 function render() {
   // init
