@@ -238,8 +238,7 @@ function player_moving() {
     // collided
     // vary the number of executions depending on the speed
     let length = Math.floor(Math.abs(player.motion.magnitude)) + 1;
-    console.log(length);
-    for( let i = 1; i <= length; i++) {
+    for (let i = 1; i <= length; i++) {
       // x
       if (is_colliding_wall(player.pos.x + (player.motion.x / length) * i, player.pos.y)) {
         player.motion.x = 0 - player.motion.x;
@@ -259,7 +258,7 @@ function player_moving() {
   player.motion.times(RESISTANCE);
 }
 
-function is_colliding_wall(px, py, pr=player.attribute.radius) {
+function is_colliding_wall(px, py, pr = player.attribute.radius) {
   for (let wall_data of stage_data.wall) {
     if (CollisionDetect.rect_circle(...wall_data.rect, px, py, pr)) { return true; }
   }
@@ -288,7 +287,7 @@ class CollisionDetect {
 // RENDERING
 // ========================================
 
-// rendering
+// color
 const COLOR = {
   background: "#eee",
   stage: "#ddd",
@@ -302,31 +301,43 @@ const COLOR = {
 var current_stage = "dev";
 var stage_data = terrain[current_stage];
 
+// rendering
 function render() {
+  // update camera
+  camera.update_pos();
+
+  // render to canvas
+  let offset;
+  // ========== ROOT ==========
   // init
+  offset = Vector2.zero;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // ========== BACKGROUND ==========
   // background
+  offset = Vector2.zero;
   ctx.fillStyle = COLOR.background;
   ctx.fillRect(0, 0, canvas.width, canvas.height);
 
+  // ========== GAME ==========
   // wall
+  offset = camera.pos;
   let _fill_data;
   for (let wall_data of stage_data.wall) {
     ctx.fillStyle = COLOR.stage;
     // create new array
     _fill_data = new Array(...wall_data.rect);
-    // set camera offset
-    _fill_data[0] -= camera.pos.x;
-    _fill_data[1] -= camera.pos.y;
+    // set offset
+    _fill_data[0] -= offset.x;
+    _fill_data[1] -= offset.y;
     ctx.fillRect(..._fill_data);
   }
 
   // player
   // set camera offset
   _fill_data = new Array(...player.pos.pack);
-  _fill_data[0] -= camera.pos.x;
-  _fill_data[1] -= camera.pos.y;
+  _fill_data[0] -= offset.x;
+  _fill_data[1] -= offset.y;
   ctx.fillStyle = COLOR.player.outline;
   ctx.beginPath();
   ctx.arc(..._fill_data, player.attribute.radius, 0, Math.PI * 2);
