@@ -287,6 +287,39 @@ class CollisionDetect {
 // RENDERING
 // ========================================
 
+// operate path
+class Renderer {
+  constructor(ctx,offset) {
+    this.ctx = ctx;
+    this.offset = offset;
+  }
+  #custom_fill(fill) {
+    switch (fill) {
+      case true:
+        this.ctx.fill();
+        break;
+      case false:
+        this.ctx.closePath();
+        break;
+      default:
+        let temp_color = this.ctx.fillStyle;
+        this.ctx.fillStyle = fill;
+        this.ctx.fill();
+        this.ctx.fillStyle = temp_color;
+    }
+  } 
+  rect(ox,oy,sx,sy,fill=false) {
+    this.ctx.beginPath();
+    this.ctx.rect(ox,oy,sx,sy);
+    this.#custom_fill(fill);
+  }
+  arc(cx,cy,cr,sd,ed,fill=false) {
+    this.ctx.beginPath();
+    this.ctx.arc(cx,cy,cr,sd,ed);
+    this.#custom_fill(fill);
+  }
+}
+
 // color
 const COLOR = {
   background: "#eee",
@@ -307,45 +340,35 @@ function render() {
   camera.update_pos();
 
   // render to canvas
-  let offset;
   // ========== ROOT ==========
   // init
-  offset = Vector2.zero;
+  let render_root = new Renderer(ctx, Vector2.zero);
+  
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   // ========== BACKGROUND ==========
   // background
-  offset = Vector2.zero;
+  let render_background = new Renderer(ctx, Vector2.zero);
+
   ctx.fillStyle = COLOR.background;
-  ctx.fillRect(0, 0, canvas.width, canvas.height);
+  render_background.rect(0, 0, canvas.width, canvas.height, true);
 
   // ========== GAME ==========
   // wall
-  offset = camera.pos;
-  let _fill_data;
+  let render_wall = new Renderer(ctx, camera.pos);
+
   for (let wall_data of stage_data.wall) {
     ctx.fillStyle = COLOR.stage;
-    // create new array
-    _fill_data = new Array(...wall_data.rect);
-    // set offset
-    _fill_data[0] -= offset.x;
-    _fill_data[1] -= offset.y;
-    ctx.fillRect(..._fill_data);
+    render_wall.rect(...wall_data.rect, true);
   }
 
   // player
-  // set camera offset
-  _fill_data = new Array(...player.pos.pack);
-  _fill_data[0] -= offset.x;
-  _fill_data[1] -= offset.y;
+  let render_player = new Renderer(ctx, camera.pos);
+
   ctx.fillStyle = COLOR.player.outline;
-  ctx.beginPath();
-  ctx.arc(..._fill_data, player.attribute.radius, 0, Math.PI * 2);
-  ctx.fill();
+  render_player.arc(...player.pos.pack, player.attribute.radius, 0, Math.PI * 2, true);
   ctx.fillStyle = COLOR.player.inside;
-  ctx.beginPath();
-  ctx.arc(..._fill_data, player.attribute.radius * player.attribute.inside_size, 0, Math.PI * 2);
-  ctx.fill();
+  render_player.arc(...player.pos.pack, player.attribute.radius * player.attribute.inside_size, 0, Math.PI * 2, true);
 }
 
 // ========================================
